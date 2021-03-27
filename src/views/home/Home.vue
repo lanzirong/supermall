@@ -3,10 +3,10 @@
     <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
     <scroll class="content" ref="scroll" 
       :probe-type="3"
-      :pull-up-load="true"
+      
       @scroll="contentScroll"
-      @pullingUp="loadMore"
-    >
+      
+    ><!--:pull-up-load="true" @pullingUp="loadMore"-->
       <home-swiper :banners="banners"></home-swiper>
         <recommend-view :recommends="recommends"></recommend-view>
         <feature-view></feature-view>
@@ -33,7 +33,7 @@ import Scroll from 'components/common/scroll/Scroll'
 import BackTop from 'components/content/backTop/BackTop.vue'
 
 import { getHomeMultidata, getHomeGoods } from 'network/home'
-
+import { debounce } from 'common/utils'
 
 export default {
   name: "Home",
@@ -73,6 +73,16 @@ export default {
     this.getHomeGoods('pop')
     this.getHomeGoods('new')
     this.getHomeGoods('sell')
+
+    
+  },
+  mounted(){
+
+    const refresh = debounce(this.$refs.scroll.refresh,500)
+
+    this.$bus.$on('itemImageLoad',() => {//3.监听item中图片加载完成
+      refresh()
+    })
   },
   methods:{
     /**
@@ -97,11 +107,11 @@ export default {
     contentScroll(position){
       this.isShowBackTop = (-position.y) >300
     },
-    loadMore(){
-      this.getHomeGoods(this.currentType)
+    // loadMore(){
+    //   this.getHomeGoods(this.currentType)
 
-      this.$refs.scroll.refresh()
-    },
+    //   this.$refs.scroll.refresh()
+    // },
 
 
     /**
@@ -122,7 +132,7 @@ export default {
           this.goods[type].list.push(...res.data.list);
           this.goods[type].page += 1
 
-          this.$refs.scroll.finishPullUp()
+          // refsh
         }
       )
     }

@@ -28,12 +28,12 @@ export default {
                 probeType: this.probeType,
                 click: true,
                 tap: true,
-                pullUpLoad: this.pullUpLoad
+                // pullUpLoad: this.pullUpLoad
             }
         }
     },
     mounted(){
-        setTimeout(() => {
+        // setTimeout(() => {
             this.scroll = new BScroll(this.$refs.wrapper,this.option)
 
             this.scroll.on('scroll',(position) => {
@@ -45,17 +45,17 @@ export default {
                 this.$emit('pullingUp')
               }) 
             }
-            
-        }, 500);
+            this.scroll.refresh()
+        // }, 500);
         
     },
     methods:{//返回顶部
         scrollTo(x, y, time=300){
             this.scroll && this.scroll.scrollTo(x, y, time)
         },
-        finishPullUp(){//到达底部
-            this.scroll && this.scroll.finishPullUp()
-        },
+        // finishPullUp(){//到达底部,上拉加载更多
+        //     this.scroll && this.scroll.finishPullUp()
+        // },
         refresh(){
             this.scroll && this.scroll.refresh()
         }

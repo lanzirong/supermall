@@ -3,10 +3,10 @@
     <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
     <scroll class="content" ref="scroll" 
       :probe-type="3"
-      
+      :pull-up-load="true"
       @scroll="contentScroll"
-      
-    ><!--:pull-up-load="true" @pullingUp="loadMore"-->
+      @pullingUp="loadMore"
+    >
       <home-swiper :banners="banners"></home-swiper>
         <recommend-view :recommends="recommends"></recommend-view>
         <feature-view></feature-view>
@@ -107,11 +107,11 @@ export default {
     contentScroll(position){
       this.isShowBackTop = (-position.y) >300
     },
-    // loadMore(){
-    //   this.getHomeGoods(this.currentType)
-
-    //   this.$refs.scroll.refresh()
-    // },
+    loadMore(){
+      this.getHomeGoods(this.currentType)
+      const refresh = debounce(this.$refs.scroll.refresh,500)
+      refresh()
+    },
 
 
     /**
@@ -132,7 +132,8 @@ export default {
           this.goods[type].list.push(...res.data.list);
           this.goods[type].page += 1
 
-          // refsh
+          // 完成上拉加载更多
+          this.$refs.scroll.finishPullUp()
         }
       )
     }

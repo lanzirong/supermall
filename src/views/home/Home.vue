@@ -1,17 +1,26 @@
 <template>
   <div id="home">
     <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
+    <tab-control :titles="['流行','新款','精选']"
+                    @tabClick="tabClick"
+                    ref="tabControl1"
+                    class="tab-control"
+                    v-show="isTabShow"
+        ></tab-control>
     <scroll class="content" ref="scroll" 
       :probe-type="3"
       :pull-up-load="true"
       @scroll="contentScroll"
       @pullingUp="loadMore"
     >
-      <home-swiper :banners="banners"></home-swiper>
+      <home-swiper :banners="banners"
+        @swiperImageLoad="swiperImageLoad"
+      ></home-swiper>
         <recommend-view :recommends="recommends"></recommend-view>
         <feature-view></feature-view>
-        <tab-control class="tab-control" :titles="['流行','新款','精选']"
+        <tab-control :titles="['流行','新款','精选']"
                     @tabClick="tabClick"
+                    ref="tabControl2"
         ></tab-control>
         <goods-list :goods="showGoods"></goods-list>
     </scroll>
@@ -47,7 +56,9 @@ export default {
         'sell': { page:0 ,list: [] }
       },
       currentType: 'pop',
-      isShowBackTop: false
+      isShowBackTop: false,
+      tabOffsetTop: 0,
+      isTabShow: false,
     }
   },
   computed:{
@@ -83,6 +94,9 @@ export default {
     this.$bus.$on('itemImageLoad',() => {//3.监听item中图片加载完成
       refresh()
     })
+
+    //console.log(this.$refs.tabControl.$el.offsetTop)
+    
   },
   methods:{
     /**
@@ -100,19 +114,27 @@ export default {
           this.currentType = 'sell'
           break;
       }
+      this.$refs.tabControl1.currentIndex = index
+      this.$refs.tabControl2.currentIndex = index
     },
     backClick(){
       this.$refs.scroll.scrollTo(0,0,700)
     },
     contentScroll(position){
+      //1.判断backTop是否显示
       this.isShowBackTop = (-position.y) >300
+
+      //2.决定tabControl是否吸顶
+      this.isTabShow = (-position.y) > this.tabOffsetTop
     },
     loadMore(){
       this.getHomeGoods(this.currentType)
       const refresh = debounce(this.$refs.scroll.refresh,500)
       refresh()
     },
-
+    swiperImageLoad(){
+      this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop
+    },
 
     /**
      * 网络请求
@@ -148,21 +170,26 @@ export default {
   .home-nav{
     background-color: var(--color-tint);
     color: #fff;
-    position: fixed;
+    /* position: fixed;
     left: 0;
     right: 0;
     top: 0;
-    z-index: 9;
+    z-index: 9; */
   }
   .tab-control{
-    position: sticky;
-    top: 43px;
+    position: relative;
     z-index: 9;
-    box-shadow: 0 3px 3px rgba(100,100,100,.1) ;
   }
   .content{
-    margin-top: 44px;
-    height: calc(100% - 93px);
+    /* height: calc(100% - 93px);
+    overflow: hidden; */
     overflow: hidden;
+
+    position: absolute;
+    top: 44px;
+    bottom: 49px;
+    left: 0;
+    right: 0;
   }
+  
 </style>

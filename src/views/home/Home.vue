@@ -135,6 +135,7 @@ export default {
     },
     swiperImageLoad(){//获取控制栏相对上层控件的高度差
       this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop
+      this.$refs.scroll.refresh()
     },
 
     /**

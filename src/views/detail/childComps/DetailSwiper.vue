@@ -5,7 +5,7 @@
             v-for="(item,index) in topImages" :key="index"
             class="swiper-item"
           >
-              <img :src="item" alt="" >
+              <img :src="item" alt="" @load="swiperLoad">
           </swiper-item>
       </swiper>
   </div>
@@ -14,6 +14,7 @@
 <script>
 
 import {Swiper,SwiperItem} from 'components/common/swiper'
+import {debounce} from 'common/utils'
 
 export default {
     props:{
@@ -28,6 +29,11 @@ export default {
     components:{
         Swiper,
         SwiperItem,
+    },
+    methods:{
+        swiperLoad(){
+            this.$emit('swiperHasLoad')
+        }
     }
 }
 </script>

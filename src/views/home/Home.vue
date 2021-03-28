@@ -59,6 +59,7 @@ export default {
       isShowBackTop: false,
       tabOffsetTop: 0,
       isTabShow: false,
+      saveY:0
     }
   },
   computed:{
@@ -102,7 +103,7 @@ export default {
     /**
      * 事件监听
      */
-    tabClick(index){
+    tabClick(index){//确定用户点击的控制栏选项,对currentType的值重新赋值
       switch (index){
         case 0: 
           this.currentType = 'pop'
@@ -117,29 +118,29 @@ export default {
       this.$refs.tabControl1.currentIndex = index
       this.$refs.tabControl2.currentIndex = index
     },
-    backClick(){
+    backClick(){//返回顶部
       this.$refs.scroll.scrollTo(0,0,700)
     },
-    contentScroll(position){
+    contentScroll(position){//通过获取滚动条的位置信息来改变一些flag
       //1.判断backTop是否显示
       this.isShowBackTop = (-position.y) >300
 
       //2.决定tabControl是否吸顶
       this.isTabShow = (-position.y) > this.tabOffsetTop
     },
-    loadMore(){
+    loadMore(){//上拉加载更多
       this.getHomeGoods(this.currentType)
       const refresh = debounce(this.$refs.scroll.refresh,500)
       refresh()
     },
-    swiperImageLoad(){
+    swiperImageLoad(){//获取控制栏相对上层控件的高度差
       this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop
     },
 
     /**
      * 网络请求
      */
-    getHomeMultidata(){
+    getHomeMultidata(){//请求获取首页基本信息(如:轮播图)
         getHomeMultidata().then(
         res => {
           this.banners = res.data.banner.list;
@@ -147,7 +148,7 @@ export default {
         }
       )
     },
-    getHomeGoods(type){
+    getHomeGoods(type){//请求加载商品信息
       const page = this.goods[type].page + 1;
         getHomeGoods(type,page).then(
         res => {
@@ -159,6 +160,13 @@ export default {
         }
       )
     }
+  },
+  activated(){
+    this.$refs.scroll.scrollTo(0,this.saveY,0)
+    this.$refs.scroll.refresh()
+  },
+  deactivated(){
+    this.saveY = this.$refs.scroll.getScrollY()
   }
 }
 </script>

@@ -1,7 +1,7 @@
 <template>
   <div class="goods-item" @click="itemClick">
       <!--原生JS监听图片加载完成:img.onload,Vue中直接在img标签中使用v-on:load(即@load)-->
-      <img :src="goodsItem.show.img" alt=""
+      <img :src="showImage" alt=""
         @load="imageLoad"
       >
       <div class="goods-info">
@@ -27,7 +27,13 @@ export default {
             this.$bus.$emit('itemImageLoad')
         },
         itemClick(){
+            // console.log(this.goodsItem)
             this.$router.push('/detail/'+this.goodsItem.iid)
+        }
+    },
+    computed:{
+        showImage(){
+            return this.goodsItem.image || this.goodsItem.show.img
         }
     }
 }

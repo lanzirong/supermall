@@ -6,7 +6,7 @@
         <detail-base-info :goods="goods"></detail-base-info>
         <detail-shop-info :shop="shop"></detail-shop-info>
         <detail-goods-info :detail-info="detailInfo" @imageLoad="imageLoad"></detail-goods-info>
-        <detail-param-info :param-info="paramInfo"></detail-param-info>
+        <detail-param-info :params-info="paramsInfo"></detail-param-info>
       </scroll>
   </div>
 </template>
@@ -35,7 +35,7 @@ export default {
             goods:{},
             shop:{},
             detailInfo:{},
-            paramInfo:{}
+            paramsInfo:{}
         }
     },
     components:{
@@ -58,7 +58,7 @@ export default {
                 this.goods = new Goods(data.itemInfo,data.columns,data.shopInfo.services)
                 this.shop = new Shop(data.shopInfo)
                 this.detailInfo = data.detailInfo
-                this.paramInfo = new GoodsParam(data.itemParams.info, data.itemParams.rule)
+                this.paramsInfo = new GoodsParam(data.itemParams.info, data.itemParams.rule)
             }
         )
     },

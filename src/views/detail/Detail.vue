@@ -1,14 +1,16 @@
 <template>
   <div id="detail">
-      <detail-nav-bar class="nav-bar"></detail-nav-bar>
+      <detail-nav-bar class="nav-bar"
+        @titleClick="titleClick"
+      ></detail-nav-bar>
       <scroll class="content" ref="scroll">
         <detail-swiper :top-images="topImages" @swiperHasLoad="swiperHasLoad"></detail-swiper>
         <detail-base-info :goods="goods"></detail-base-info>
         <detail-shop-info :shop="shop"></detail-shop-info>
         <detail-goods-info :detail-info="detailInfo" @imageLoad="imageLoad"></detail-goods-info>
-        <detail-param-info :params-info="paramsInfo"></detail-param-info>
-        <detail-comment-info :comment-info="commentInfo"></detail-comment-info>
-        <goods-list :goods="recommends"></goods-list>
+        <detail-param-info ref="params" :params-info="paramsInfo"></detail-param-info>
+        <detail-comment-info ref="comment" :comment-info="commentInfo"></detail-comment-info>
+        <goods-list ref="recommend" :goods="recommends"></goods-list>
       </scroll>
   </div>
 </template>
@@ -27,7 +29,7 @@ import GoodsList from 'components/content/goods/GoodsList'
 
 import {getDetail,Goods,Shop,GoodsParam,getRecommend} from "network/detail"
 import {debounce} from 'common/utils'
-
+import {itemListenerMixin} from 'common/mixin'
 
 
 export default {
@@ -41,9 +43,12 @@ export default {
             detailInfo:{},
             paramsInfo:{},
             commentInfo:{},
-            recommends:[]
+            recommends:[],
+            themeTopYs:[],
+            getThemeTops:null
         }
     },
+    mixins:[itemListenerMixin],
     components:{
         DetailNavBar,
         DetailSwiper,
@@ -82,6 +87,16 @@ export default {
 
                 //7.取出评论信息    
                 this.commentInfo = data.rate.list[0]
+
+                //8.获取各个组题的offsetTop
+                this.getThemeTops = debounce(() =>{
+                    this.themeTopYs = []
+                    this.themeTopYs.push(0)
+                    this.themeTopYs.push(this.$refs.params.$el.offsetTop - 44)
+                    this.themeTopYs.push(this.$refs.comment.$el.offsetTop - 44)
+                    this.themeTopYs.push(this.$refs.recommend.$el.offsetTop - 44)
+                    this.themeTopYs = this.themeTopYs.slice(-4)
+                },100)
             },
             //3.获取推荐数据
             getRecommend().then( res => {
@@ -90,12 +105,26 @@ export default {
             } )
         )
     },
+    mounted(){
+
+    },
+    updated(){
+            
+    },
+    destroyed(){
+        this.$bus.$off('itemImgListener',this.itemImgListener)
+    },
     methods:{
         swiperHasLoad(){
-            debounce(this.$refs.scroll.refresh(),500)
+            //newrefresh在mixin[itemListernerMixin]
+            this.newrefresh()
         },
         imageLoad(){
-            this.$refs.scroll.refresh()
+            this.getThemeTops()
+            this.newrefresh()
+        },
+        titleClick(index){
+            this.$refs.scroll.scrollTo(0, -this.themeTopYs[index],500)
         }
     }
 }
@@ -103,6 +132,7 @@ export default {
 
 <style scoped>
     #detail{
+        margin: 0;
         position: relative;
         z-index: 9;
         background-color: #fff;

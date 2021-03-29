@@ -24,7 +24,12 @@ export default {
     },
     methods: {
         imageLoad (){
-            this.$bus.$emit('itemImageLoad')
+            if(this.$route.path.indexOf('/home')){
+                this.$bus.$emit('itemImageLoad') 
+            }else if(this.$route.path.indexOf('/detail')){
+                this.$bus.$emit('itemImageLoad') 
+            }
+            
         },
         itemClick(){
             // console.log(this.goodsItem)

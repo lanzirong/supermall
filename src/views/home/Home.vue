@@ -43,7 +43,7 @@ import BackTop from 'components/content/backTop/BackTop.vue'
 
 import { getHomeMultidata, getHomeGoods } from 'network/home'
 import { debounce } from 'common/utils'
-import {itemListenerMixin} from 'common/mixin'
+import {itemListenerMixin,backTopMixin} from 'common/mixin'
 
 export default {
   name: "Home",
@@ -63,7 +63,7 @@ export default {
       saveY:0
     }
   },
-  mixins:[itemListenerMixin],
+  mixins:[itemListenerMixin,backTopMixin],
   computed:{
     showGoods(){
       return this.goods[this.currentType].list
@@ -77,7 +77,6 @@ export default {
     TabControl,
     GoodsList,
     Scroll,
-    BackTop,
   },
   created(){
     //1.请求多个数据
@@ -116,15 +115,13 @@ export default {
       this.$refs.tabControl1.currentIndex = index
       this.$refs.tabControl2.currentIndex = index
     },
-    backClick(){//返回顶部
-      this.$refs.scroll.scrollTo(0,0,700)
-    },
     contentScroll(position){//通过获取滚动条的位置信息来改变一些flag
       //1.判断backTop是否显示
-      this.isShowBackTop = (-position.y) >300
+      this.listenShowBackTop(position),
 
       //2.决定tabControl是否吸顶
       this.isTabShow = (-position.y) > this.tabOffsetTop
+
     },
     loadMore(){//上拉加载更多
       this.getHomeGoods(this.currentType)

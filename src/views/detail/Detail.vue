@@ -2,8 +2,9 @@
   <div id="detail">
       <detail-nav-bar class="nav-bar"
         @titleClick="titleClick"
+        ref="nav"
       ></detail-nav-bar>
-      <scroll class="content" ref="scroll">
+      <scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll">
         <detail-swiper :top-images="topImages" @swiperHasLoad="swiperHasLoad"></detail-swiper>
         <detail-base-info :goods="goods"></detail-base-info>
         <detail-shop-info :shop="shop"></detail-shop-info>
@@ -12,6 +13,10 @@
         <detail-comment-info ref="comment" :comment-info="commentInfo"></detail-comment-info>
         <goods-list ref="recommend" :goods="recommends"></goods-list>
       </scroll>
+      <detail-bottom-bar class="bottom-bar"
+        @addCart="addToCart"
+      ></detail-bottom-bar>
+      <back-top v-show="isShowBackTop" @click.native="backClick"/>
   </div>
 </template>
 
@@ -23,13 +28,15 @@ import DetailShopInfo from './childComps/DetailShopInfo'
 import DetailGoodsInfo from './childComps/DetailGoodsInfo'
 import DetailParamInfo from './childComps/DetailParamInfo'
 import DetailCommentInfo from './childComps/DetailCommentInfo'
+import DetailBottomBar from './childComps/DetailBottomBar.vue'
 
 import Scroll from 'components/common/scroll/Scroll'
 import GoodsList from 'components/content/goods/GoodsList'
 
 import {getDetail,Goods,Shop,GoodsParam,getRecommend} from "network/detail"
 import {debounce} from 'common/utils'
-import {itemListenerMixin} from 'common/mixin'
+import {itemListenerMixin,backTopMixin} from 'common/mixin'
+
 
 
 export default {
@@ -45,10 +52,11 @@ export default {
             commentInfo:{},
             recommends:[],
             themeTopYs:[],
-            getThemeTops:null
+            getThemeTops:null,
+            currentIndex: 0,
         }
     },
-    mixins:[itemListenerMixin],
+    mixins:[itemListenerMixin,backTopMixin],
     components:{
         DetailNavBar,
         DetailSwiper,
@@ -59,6 +67,7 @@ export default {
         DetailParamInfo,
         DetailCommentInfo,
         GoodsList,
+        DetailBottomBar,
     },
     created(){
         //1.获取iid
@@ -92,9 +101,9 @@ export default {
                 this.getThemeTops = debounce(() =>{
                     this.themeTopYs = []
                     this.themeTopYs.push(0)
-                    this.themeTopYs.push(this.$refs.params.$el.offsetTop - 44)
-                    this.themeTopYs.push(this.$refs.comment.$el.offsetTop - 44)
-                    this.themeTopYs.push(this.$refs.recommend.$el.offsetTop - 44)
+                    this.themeTopYs.push(this.$refs.params.$el.offsetTop)
+                    this.themeTopYs.push(this.$refs.comment.$el.offsetTop)
+                    this.themeTopYs.push(this.$refs.recommend.$el.offsetTop)
                     this.themeTopYs = this.themeTopYs.slice(-4)
                 },100)
             },
@@ -125,6 +134,33 @@ export default {
         },
         titleClick(index){
             this.$refs.scroll.scrollTo(0, -this.themeTopYs[index],500)
+        },
+        contentScroll(position){
+            const positionY = -position.y
+            const length = this.themeTopYs.length
+            for(let i=0; i<=this.themeTopYs.length; i++){
+                // if(positionY >= this.themeTopYs[i] && positionY < this.themeTopYs[i+1]){
+                //     console.log(i);
+                // }
+                if (this.currentIndex !== i && ((i < length-1 && positionY >= this.themeTopYs[i] && positionY < this.themeTopYs[i+1]) || (i === length - 1 && positionY >= this.themeTopYs[i]))){
+                    this.currentIndex = i;
+                    this.$refs.nav.currentIndex = this.currentIndex;
+                }
+            };
+            //1.判断backTop是否显示
+            this.listenShowBackTop(position)
+        },
+        addToCart(){
+            //1.获取添加到购物车的商品信息
+            const product = {}
+            product.image = this.topImages[0]
+            product.title = this.goods.title
+            product.desc = this.goods.desc
+            product.price = this.goods.realPrice
+            product.iid = this.iid
+
+            //2.将商品添加到购物车
+            this.$store.dispatch('addCart',product)
         }
     }
 }
@@ -139,8 +175,16 @@ export default {
         height: 100vh;
     }
     .content{
-        height: calc(100% - 44px)
-    }
+    /* height: calc(100% - 93px);
+    overflow: hidden; */
+    overflow: hidden;
+
+    position: absolute;
+    top: 44px;
+    bottom: 49px;
+    left: 0;
+    right: 0;
+  }
     .nav-bar{
         position: relative;
         z-index: 9;

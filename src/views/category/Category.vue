@@ -105,6 +105,7 @@
         <li>分类列表100</li>
       </ul>
     </div>
+    <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
     
   </div>
 </template>
@@ -112,7 +113,13 @@
 <script>
 import BetterScroll from 'better-scroll';
 
+import {backTopMixin} from 'common/mixin'
+
 export default {
+  components: { 
+    
+   },
+   mixins:[backTopMixin],
   data(){
     return {
       scroll: null

@@ -15,5 +15,12 @@ export default{
             // state.cartList.push(payload)
             context.commit('addToCart',payload)
         }
+    },
+    cancelAll({state,commit},{isSelectAll}){
+        if(isSelectAll){
+            commit('cancelSelect')
+        }else{
+            commit('selectAll')
+        }
     }
 }

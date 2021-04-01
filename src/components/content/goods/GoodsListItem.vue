@@ -1,7 +1,7 @@
 <template>
   <div class="goods-item" @click="itemClick">
       <!--原生JS监听图片加载完成:img.onload,Vue中直接在img标签中使用v-on:load(即@load)-->
-      <img :src="showImage" alt=""
+      <img v-lazy="showImage" alt=""
         @load="imageLoad"
       >
       <div class="goods-info">

@@ -1,7 +1,7 @@
 <template>
   <div class="goods-item" @click="itemClick">
       <!--原生JS监听图片加载完成:img.onload,Vue中直接在img标签中使用v-on:load(即@load)-->
-      <img v-lazy="showImage" alt=""
+      <img  :src="this.showImage" alt=""
         @load="imageLoad"
       >
       <div class="goods-info">
@@ -38,8 +38,14 @@ export default {
     },
     computed:{
         showImage(){
-            return this.goodsItem.image || this.goodsItem.show.img
+            return (this.goodsItem.show ? this.goodsItem.show.img : undefined) || (this.goodsItem.img ? this.goodsItem.img : undefined) || (this.goodsItem.image ? this.goodsItem.image : undefined) 
         }
+    },
+    created(){
+        
+    },
+    mounted(){
+        
     }
 }
 </script>

@@ -25,9 +25,9 @@
     computed: {
       isActive() {
         // /home -> item1(/home) = true
-        // /home -> item1(/category) = false
-        // /home -> item1(/cart) = true
-        // /home -> item1(/profile) = true
+        // /home -> item2(/category) = false
+        // /home -> item3(/cart) = false
+        // /home -> item4(/profile) = false
         return this.$route.path.indexOf(this.path) !== -1
       },
       activeStyle() {
@@ -36,7 +36,10 @@
     },
     methods: {
       itemClick() {
-        this.$router.replace(this.path)
+        if(this.$route.path !== this.path){
+          this.$router.push(this.path)
+        }
+          
       }
     }
   }
